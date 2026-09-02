@@ -297,11 +297,24 @@ export default function Wallets() {
         </button>
       </div>
 
-      {/* Tổng số dư */}
+      {/* Tổng số dư & Khả dụng */}
       <div className="bg-gradient-to-r from-amber-400 to-amber-500 rounded-2xl p-6 mb-6 text-slate-900 shadow-sm">
-        <p className="text-sm font-medium opacity-80">Tổng số dư</p>
-        <p className="text-3xl font-bold mt-1">{formatCurrency(totalBalance)}</p>
-        <p className="text-xs opacity-70 mt-1">{wallets.length} ví đang hoạt động</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wider opacity-80">Tổng số dư thực tế</p>
+            <p className="text-3xl font-bold mt-1">{formatCurrency(totalBalance)}</p>
+            <p className="text-xs opacity-70 mt-1">{wallets.length} ví đang hoạt động</p>
+          </div>
+          <div className="sm:border-l sm:border-slate-900/10 sm:pl-6">
+            <p className="text-xs font-medium uppercase tracking-wider opacity-80">Số dư khả dụng chi tiêu</p>
+            <p className="text-3xl font-bold mt-1 text-slate-950">
+              {formatCurrency(wallets.reduce((sum, w) => sum + (w.availableBalance ?? w.balance), 0))}
+            </p>
+            <p className="text-xs opacity-70 mt-1">
+              Đang để dành tích lũy: {formatCurrency(wallets.reduce((sum, w) => sum + (w.reservedAmount ?? 0), 0))}
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Danh sách ví */}
@@ -373,11 +386,24 @@ export default function Wallets() {
               </div>
 
               {/* Số dư */}
-              <div className="mt-4 pt-4 border-t border-slate-100">
-                <p className="text-xs text-slate-400 mb-0.5">Số dư hiện tại</p>
-                <p className={`text-xl font-bold ${wallet.balance < 0 ? 'text-red-500' : 'text-slate-800'}`}>
-                  {formatCurrency(wallet.balance)}
-                </p>
+              <div className="mt-4 pt-4 border-t border-slate-100 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-400">Số dư thực tế:</span>
+                  <span className={`text-base font-bold ${wallet.balance < 0 ? 'text-red-500' : 'text-slate-800'}`}>
+                    {formatCurrency(wallet.balance)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between bg-emerald-50/60 px-2.5 py-1.5 rounded-lg border border-emerald-100">
+                  <span className="text-xs font-semibold text-emerald-800">Khả dụng:</span>
+                  <span className="text-base font-bold text-emerald-700">
+                    {formatCurrency(wallet.availableBalance ?? wallet.balance)}
+                  </span>
+                </div>
+                {(wallet.reservedAmount ?? 0) > 0 && (
+                  <p className="text-[11px] text-amber-600 font-medium text-right">
+                    (Đang giữ {formatCurrency(wallet.reservedAmount)} trong quỹ tích lũy)
+                  </p>
+                )}
               </div>
             </div>
           ))}

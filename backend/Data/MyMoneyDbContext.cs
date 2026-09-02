@@ -38,6 +38,11 @@ namespace backend.Data
         /// </summary>
         public DbSet<Budget> Budgets { get; set; }
 
+        /// <summary>
+        /// DbSet đại diện cho bảng SavingGoals trong cơ sở dữ liệu, chứa các thực thể SavingGoal.
+        /// </summary>
+        public DbSet<SavingGoal> SavingGoals { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Áp dụng các cấu hình từ assembly hiện tại, giúp tự động áp dụng

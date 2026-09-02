@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   Wallet,
   FolderTree,
+  PiggyBank,
   PieChart,
   User,
   type LucideIcon,
@@ -47,6 +48,12 @@ const MENU_CONFIG: MenuItem[] = [
       { label: 'Danh mục Thu / Chi', path: '/categories' },
       { label: 'Hạn mức ngân sách', path: '/budgets' },
     ],
+  },
+  {
+    id: 'savings',
+    label: 'Mục tiêu tích lũy',
+    icon: PiggyBank,
+    path: '/savings',
   },
   {
     id: 'reports',

@@ -6,6 +6,8 @@ export interface WalletReadDto {
   name: string;
   type: WalletType;
   balance: number;
+  reservedAmount: number;
+  availableBalance: number;
   icon?: string;
   color?: string;
   isDefault: boolean;
