@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using backend.Models;
 
 namespace backend.Data
@@ -17,6 +17,11 @@ namespace backend.Data
         /// DbSet đại diện cho bảng Users trong cơ sở dữ liệu, chứa các thực thể User.
         /// </summary>
         public DbSet<User> Users { get; set; }
+
+        /// <summary>
+        /// DbSet đại diện cho bảng Wallets trong cơ sở dữ liệu, chứa các thực thể Wallet.
+        /// </summary>
+        public DbSet<Wallet> Wallets { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
