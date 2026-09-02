@@ -41,6 +41,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 // 4. Đăng ký Services (DI)
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IWalletService, WalletService>();
 
 // 5. Cấu hình Authentication (JWT)
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
