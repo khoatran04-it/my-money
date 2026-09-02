@@ -5,8 +5,6 @@ import {
   ChevronRight,
   ChevronDown,
   Search,
-  LogOut,
-  Settings,
   Coins,
   LayoutDashboard,
   Wallet,
@@ -15,7 +13,6 @@ import {
   User,
   type LucideIcon,
 } from 'lucide-react';
-import { useAuthStore } from '@/store/useAuthStore';
 
 // 1. CẤU HÌNH MENU
 interface MenuItem {
@@ -70,16 +67,9 @@ export const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { user, logout } = useAuthStore();
-
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [openMenus, setOpenMenus] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
 
   // Lọc menu theo từ khóa tìm kiếm
   const displayMenu = useMemo(() => {

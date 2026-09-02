@@ -24,13 +24,13 @@ import { WALLET_TYPE_LABELS } from '@/types/wallet.types';
 const walletSchema = z.object({
   name: z.string().min(1, 'Tên ví không được để trống').max(100),
   type: z.enum(['Cash', 'BankAccount', 'CreditCard', 'EWallet', 'Other']),
-  balance: z.number().min(0, 'Số dư không được âm').default(0),
+  balance: z.number().min(0, 'Số dư không được âm'),
   color: z
     .string()
     .regex(/^#([0-9A-Fa-f]{6})$/, 'Màu không hợp lệ (vd: #3B82F6)')
     .optional()
     .or(z.literal('')),
-  isDefault: z.boolean().default(false),
+  isDefault: z.boolean(),
 });
 
 type WalletFormData = z.infer<typeof walletSchema>;

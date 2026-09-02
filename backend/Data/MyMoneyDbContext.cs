@@ -27,7 +27,6 @@ namespace backend.Data
         /// DbSet đại diện cho bảng Categories trong cơ sở dữ liệu, chứa các thực thể Category.
         /// </summary>
         public DbSet<Category> Categories { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Áp dụng các cấu hình từ assembly hiện tại, giúp tự động áp dụng
