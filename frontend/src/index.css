@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+@theme {
+  /* 1. Trắng (Theme/Nền) */
+  --color-surface: #ffffff;
+  --color-background: #f8fafc; /* Slate 50 làm nền phụ cho nổi bật Card trắng */
+  
+  /* 2. Đen (Màu chữ chính) */
+  --color-content: #0f172a; /* Slate 900 */
+  --color-content-muted: #64748b; /* Slate 500 cho chữ phụ */
+
+  /* 3. Vàng hổ phách (Nút bấm, Badge, Tiền tệ chung) */
+  --color-primary: #f59e0b; /* Amber 500 */
+  --color-primary-hover: #d97706; /* Amber 600 */
+
+  /* 4. Xanh lá (Tiền dương, Thu nhập, Success) */
+  --color-positive: #10b981; /* Emerald 500 */
+
+  /* 5. Đỏ (Tiền âm, Chi tiêu, Danger) */
+  --color-negative: #ef4444; /* Red 500 */
+}
+
+/* Áp dụng nền và màu chữ mặc định cho toàn web */
+@layer base {
+  body {
+    @apply bg-background text-content antialiased;
+  }
+}
