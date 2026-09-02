@@ -31,6 +31,7 @@ export default function AppRouter() {
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/budgets" element={<Budgets />} />
             <Route path="/savings" element={<SavingGoals />} />
+            <Route path="/reports" element={<Navigate to="/dashboard" replace />} />
           </Route>
         </Route>
 

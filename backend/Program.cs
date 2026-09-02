@@ -50,6 +50,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IBudgetService, BudgetService>();
 builder.Services.AddScoped<ISavingGoalService, SavingGoalService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 // 5. Cấu hình Authentication (JWT)
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
