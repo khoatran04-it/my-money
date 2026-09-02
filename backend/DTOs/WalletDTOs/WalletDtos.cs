@@ -23,6 +23,17 @@ namespace backend.DTOs.Wallet
         public required string Name { get; set; }
         public required string Type { get; set; }
         public decimal Balance { get; set; }
+
+        /// <summary>
+        /// Tổng số tiền đang được phân bổ/khóa trong các mục tiêu tiết kiệm thuộc ví này.
+        /// </summary>
+        public decimal ReservedAmount { get; set; }
+
+        /// <summary>
+        /// Số dư khả dụng thực tế để chi tiêu = Balance - ReservedAmount.
+        /// </summary>
+        public decimal AvailableBalance => Balance - ReservedAmount;
+
         public string? Icon { get; set; }
         public string? Color { get; set; }
         public bool IsDefault { get; set; }

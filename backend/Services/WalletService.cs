@@ -30,7 +30,20 @@ namespace backend.Services
                 .ThenBy(w => w.CreatedAt)
                 .ToListAsync();
 
-            return _mapper.Map<List<WalletReadDto>>(wallets);
+            var savingsMap = await _context.SavingGoals
+                .AsNoTracking()
+                .Where(s => s.UserId == userId && s.Status == "Active")
+                .GroupBy(s => s.WalletId)
+                .Select(g => new { WalletId = g.Key, TotalReserved = g.Sum(s => s.CurrentAmount) })
+                .ToDictionaryAsync(x => x.WalletId, x => x.TotalReserved);
+
+            var dtos = _mapper.Map<List<WalletReadDto>>(wallets);
+            foreach (var dto in dtos)
+            {
+                dto.ReservedAmount = savingsMap.GetValueOrDefault(dto.Id, 0m);
+            }
+
+            return dtos;
         }
 
         /// <summary>
@@ -45,7 +58,14 @@ namespace backend.Services
             if (wallet == null)
                 throw new NotFoundException("Ví không tồn tại hoặc bạn không có quyền truy cập.");
 
-            return _mapper.Map<WalletReadDto>(wallet);
+            var reserved = await _context.SavingGoals
+                .AsNoTracking()
+                .Where(s => s.UserId == userId && s.WalletId == walletId && s.Status == "Active")
+                .SumAsync(s => s.CurrentAmount);
+
+            var dto = _mapper.Map<WalletReadDto>(wallet);
+            dto.ReservedAmount = reserved;
+            return dto;
         }
 
         /// <summary>
