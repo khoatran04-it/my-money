@@ -11,7 +11,6 @@ import {
   FolderTree,
   PiggyBank,
   PieChart,
-  User,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -60,12 +59,6 @@ const MENU_CONFIG: MenuItem[] = [
     label: 'Báo cáo & Thống kê',
     icon: PieChart,
     path: '/reports',
-  },
-  {
-    id: 'profile',
-    label: 'Hồ sơ cá nhân',
-    icon: User,
-    path: '/profile',
   },
 ];
 

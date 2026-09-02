@@ -26,3 +26,69 @@
     @apply bg-background text-content antialiased;
   }
 }
+
+/* Tùy chỉnh DatePicker (React DayPicker): Gọn gàng, vừa mắt, hình tròn chuẩn 100% không bị viền vuông */
+.custom-day-picker {
+  --rdp-day-height: 32px;
+  --rdp-day-width: 32px;
+  --rdp-day_button-height: 30px;
+  --rdp-day_button-width: 30px;
+  --rdp-nav_button-height: 1.75rem;
+  --rdp-nav_button-width: 1.75rem;
+  --rdp-nav-height: 2rem;
+  --rdp-accent-color: #f59e0b;
+}
+
+/* Xóa bỏ nền vuông mặc định của thẻ td */
+.custom-day-picker .rdp-day {
+  background: transparent !important;
+  border: none !important;
+  padding: 1px !important;
+}
+
+/* Nút ngày mặc định */
+.custom-day-picker .rdp-day_button {
+  border-radius: 9999px !important;
+  font-size: 0.8rem !important;
+  font-weight: 500 !important;
+  border: none !important;
+  transition: all 0.15s ease;
+}
+
+.custom-day-picker .rdp-day_button:hover:not(:disabled) {
+  background-color: #f1f5f9 !important;
+}
+
+/* Nút ngày được chọn: bo tròn 100%, nền màu vàng hổ phách, chữ đen đậm, KHÔNG CÓ VIỀN VUÔNG */
+.custom-day-picker .rdp-selected,
+.custom-day-picker .rdp-selected .rdp-day_button {
+  background-color: #fbbf24 !important; /* amber-400 */
+  color: #0f172a !important; /* slate-900 */
+  font-weight: 700 !important;
+  border: none !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Ngày hôm nay (khi chưa được chọn): chữ cam, viền mỏng tròn */
+.custom-day-picker .rdp-today:not(.rdp-selected) .rdp-day_button {
+  color: #d97706 !important;
+  font-weight: 700 !important;
+  border: 1px solid #fde68a !important;
+}
+
+/* Tiêu đề tháng */
+.custom-day-picker .rdp-month_caption {
+  font-size: 0.875rem !important;
+  font-weight: 700 !important;
+  color: #1e293b !important;
+  padding-bottom: 0.5rem !important;
+}
+
+/* Tên các thứ trong tuần */
+.custom-day-picker .rdp-weekday {
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  color: #94a3b8 !important;
+  padding: 0.25rem 0 !important;
+}

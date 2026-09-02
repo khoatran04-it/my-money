@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { useBudgetStore } from '@/store/useBudgetStore';
 import { useCategoryStore } from '@/store/useCategoryStore';
+import { Dropdown } from '@/components/ui/Dropdown';
 import type {
   BudgetCreateDto,
   BudgetReadDto,
@@ -98,6 +99,8 @@ function CreateBudgetModal({ month, year, existingCategoryIds, onClose }: Create
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<BudgetCreateFormData>({
     resolver: zodResolver(budgetCreateSchema),
@@ -148,24 +151,13 @@ function CreateBudgetModal({ month, year, existingCategoryIds, onClose }: Create
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {/* Chọn Danh mục */}
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
-                Danh mục chi tiêu
-              </label>
-              <select
-                {...register('categoryId')}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:border-amber-400"
-              >
-                {availableCategories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-              {errors.categoryId && (
-                <p className="mt-1 text-xs text-red-500">{errors.categoryId.message}</p>
-              )}
-            </div>
+            <Dropdown
+              label="Danh mục chi tiêu"
+              value={watch('categoryId')}
+              onValueChange={(val) => setValue('categoryId', val)}
+              options={availableCategories.map((c) => ({ label: c.name, value: c.id }))}
+              error={errors.categoryId?.message}
+            />
 
             {/* Hạn mức số tiền */}
             <div>

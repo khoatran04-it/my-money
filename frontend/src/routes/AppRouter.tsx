@@ -11,6 +11,7 @@ import Categories from '@/pages/Categories';
 import Transactions from '@/pages/Transactions';
 import Budgets from '@/pages/Budgets';
 import SavingGoals from '@/pages/SavingGoals';
+import Profile from '@/pages/Profile';
 
 export default function AppRouter() {
   return (
@@ -31,6 +32,7 @@ export default function AppRouter() {
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/budgets" element={<Budgets />} />
             <Route path="/savings" element={<SavingGoals />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/reports" element={<Navigate to="/dashboard" replace />} />
           </Route>
         </Route>

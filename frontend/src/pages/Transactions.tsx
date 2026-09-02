@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
+import { format } from 'date-fns';
 import {
   Plus,
   Pencil,
@@ -28,11 +29,14 @@ import {
   Coffee,
   Zap,
   Tag,
+  FileSpreadsheet,
   type LucideIcon,
 } from 'lucide-react';
 import { useTransactionStore } from '@/store/useTransactionStore';
 import { useWalletStore } from '@/store/useWalletStore';
 import { useCategoryStore } from '@/store/useCategoryStore';
+import { Dropdown } from '@/components/ui/Dropdown';
+import { DatePicker } from '@/components/ui/DatePicker';
 import type {
   TransactionCreateDto,
   TransactionReadDto,
@@ -112,8 +116,8 @@ function TransactionModal({ editTarget, onClose }: TransactionModalProps) {
   const isEdit = !!editTarget;
 
   const defaultDate = editTarget
-    ? new Date(editTarget.date).toISOString().split('T')[0]
-    : new Date().toISOString().split('T')[0];
+    ? format(new Date(editTarget.date), 'yyyy-MM-dd')
+    : format(new Date(), 'yyyy-MM-dd');
 
   const {
     register,
@@ -158,7 +162,7 @@ function TransactionModal({ editTarget, onClose }: TransactionModalProps) {
           categoryId: data.categoryId,
           amount: data.amount,
           type: data.type as TransactionType,
-          date: new Date(data.date).toISOString(),
+          date: new Date(data.date + 'T12:00:00').toISOString(),
           note: data.note || undefined,
         };
         await updateTransaction(editTarget!.id, updateData);
@@ -169,7 +173,7 @@ function TransactionModal({ editTarget, onClose }: TransactionModalProps) {
           categoryId: data.categoryId,
           amount: data.amount,
           type: data.type as TransactionType,
-          date: new Date(data.date).toISOString(),
+          date: new Date(data.date + 'T12:00:00').toISOString(),
           note: data.note || undefined,
         };
         await createTransaction(createData);
@@ -237,63 +241,37 @@ function TransactionModal({ editTarget, onClose }: TransactionModalProps) {
           </div>
 
           {/* Chọn Ví */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
-              Tài khoản / Ví
-            </label>
-            <select
-              {...register('walletId')}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:border-amber-400"
-            >
-              {wallets.map((w) => (
-                <option key={w.id} value={w.id}>
-                  {w.name} ({formatCurrency(w.balance)})
-                </option>
-              ))}
-            </select>
-            {errors.walletId && (
-              <p className="mt-1 text-xs text-red-500">{errors.walletId.message}</p>
-            )}
-          </div>
+          <Dropdown
+            label="Tài khoản / Ví"
+            value={watch('walletId')}
+            onValueChange={(val) => setValue('walletId', val)}
+            options={wallets.map((w) => ({
+              label: `${w.name} (${formatCurrency(w.balance)})`,
+              value: w.id,
+            }))}
+            error={errors.walletId?.message}
+          />
 
           {/* Chọn Danh mục */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
-              Danh mục
-            </label>
-            <select
-              {...register('categoryId')}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:border-amber-400"
-            >
-              {availableCategories.length === 0 ? (
-                <option value="">Chưa có danh mục nào</option>
-              ) : (
-                availableCategories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))
-              )}
-            </select>
-            {errors.categoryId && (
-              <p className="mt-1 text-xs text-red-500">{errors.categoryId.message}</p>
-            )}
-          </div>
+          <Dropdown
+            label="Danh mục"
+            value={watch('categoryId')}
+            onValueChange={(val) => setValue('categoryId', val)}
+            options={availableCategories.map((c) => ({
+              label: c.name,
+              value: c.id,
+            }))}
+            placeholder={availableCategories.length === 0 ? 'Chưa có danh mục nào' : 'Chọn danh mục...'}
+            error={errors.categoryId?.message}
+          />
 
           {/* Ngày giao dịch */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
-              Ngày thực hiện
-            </label>
-            <input
-              type="date"
-              {...register('date')}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:border-amber-400"
-            />
-            {errors.date && (
-              <p className="mt-1 text-xs text-red-500">{errors.date.message}</p>
-            )}
-          </div>
+          <DatePicker
+            label="Ngày thực hiện"
+            date={watch('date') ? new Date(watch('date') + 'T12:00:00') : undefined}
+            onSelect={(d) => setValue('date', d ? format(d, 'yyyy-MM-dd') : '')}
+            error={errors.date?.message}
+          />
 
           {/* Ghi chú */}
           <div>
@@ -433,6 +411,37 @@ export default function Transactions() {
     setShowModal(true);
   };
 
+  const handleExportCSV = () => {
+    if (transactions.length === 0) {
+      toast.error('Không có giao dịch nào để xuất!');
+      return;
+    }
+
+    const headers = ['Mã GD', 'Ngày giao dịch', 'Tài khoản / Ví', 'Danh mục', 'Loại', 'Số tiền (VNĐ)', 'Ghi chú'];
+    const rows = transactions.map((t) => [
+      `"${t.id}"`,
+      `"${new Date(t.date).toLocaleDateString('vi-VN')}"`,
+      `"${t.walletName ?? ''}"`,
+      `"${t.categoryName ?? 'Không phân loại'}"`,
+      `"${t.type === 'Income' ? 'Thu nhập' : 'Chi tiêu'}"`,
+      t.amount,
+      `"${(t.note ?? '').replace(/"/g, '""')}"`,
+    ]);
+
+    // Thêm UTF-8 BOM (\uFEFF) để Microsoft Excel hiển thị tiếng Việt có dấu chuẩn 100%
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `So_Giao_Dich_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success('Xuất file CSV / Excel thành công!');
+  };
+
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       {/* Header */}
@@ -443,13 +452,23 @@ export default function Transactions() {
             Quản lý dòng tiền và lịch sử thu chi của bạn
           </p>
         </div>
-        <button
-          onClick={openCreate}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-900 hover:bg-amber-500 transition-colors shadow-sm"
-        >
-          <Plus size={16} />
-          Ghi chép giao dịch
-        </button>
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={handleExportCSV}
+            title="Xuất danh sách giao dịch ra file CSV / Excel"
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200/90 bg-white px-3.5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-700 transition-colors shadow-2xs"
+          >
+            <FileSpreadsheet size={16} className="text-emerald-600" />
+            Xuất Excel / CSV
+          </button>
+          <button
+            onClick={openCreate}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-900 hover:bg-amber-500 transition-colors shadow-sm shrink-0"
+          >
+            <Plus size={16} />
+            Ghi chép giao dịch
+          </button>
+        </div>
       </div>
 
       {/* Thẻ thống kê tóm tắt */}
@@ -512,43 +531,38 @@ export default function Transactions() {
           </div>
 
           {/* Lọc loại thu/chi */}
-          <select
+          <Dropdown
             value={selectedType}
-            onChange={(e) => setSelectedType(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-400"
-          >
-            <option value="ALL">Tất cả loại giao dịch</option>
-            <option value="Expense">Chi tiêu (Expense)</option>
-            <option value="Income">Thu nhập (Income)</option>
-          </select>
+            onValueChange={(val) => setSelectedType(val)}
+            options={[
+              { label: 'Tất cả loại giao dịch', value: 'ALL' },
+              { label: 'Chi tiêu (Expense)', value: 'Expense' },
+              { label: 'Thu nhập (Income)', value: 'Income' },
+            ]}
+          />
 
           {/* Lọc theo Ví */}
-          <select
+          <Dropdown
             value={selectedWalletId}
-            onChange={(e) => setSelectedWalletId(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-400"
-          >
-            <option value="ALL">Tất cả ví</option>
-            {wallets.map((w) => (
-              <option key={w.id} value={w.id}>
-                {w.name}
-              </option>
-            ))}
-          </select>
+            onValueChange={(val) => setSelectedWalletId(val)}
+            options={[
+              { label: 'Tất cả ví', value: 'ALL' },
+              ...wallets.map((w) => ({ label: w.name, value: w.id })),
+            ]}
+          />
 
           {/* Lọc theo Danh mục */}
-          <select
+          <Dropdown
             value={selectedCategoryId}
-            onChange={(e) => setSelectedCategoryId(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-400"
-          >
-            <option value="ALL">Tất cả danh mục</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name} ({c.type === 'Income' ? 'Thu' : 'Chi'})
-              </option>
-            ))}
-          </select>
+            onValueChange={(val) => setSelectedCategoryId(val)}
+            options={[
+              { label: 'Tất cả danh mục', value: 'ALL' },
+              ...categories.map((c) => ({
+                label: `${c.name} (${c.type === 'Income' ? 'Thu' : 'Chi'})`,
+                value: c.id,
+              })),
+            ]}
+          />
         </div>
 
         <div className="flex items-center justify-end gap-2 pt-1 border-t border-slate-100">

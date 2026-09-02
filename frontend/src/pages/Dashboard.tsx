@@ -30,6 +30,7 @@ import {
 import { useAuthStore } from '@/store/useAuthStore';
 import { useDashboardStore } from '@/store/useDashboardStore';
 import { useWalletStore } from '@/store/useWalletStore';
+import { Dropdown } from '@/components/ui/Dropdown';
 
 // ============================================================
 // Helpers & Formatters
@@ -174,18 +175,16 @@ export default function Dashboard() {
         {/* Bộ lọc Tháng / Năm & Ví */}
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Lọc theo ví */}
-          <select
-            value={filter.walletId ?? ''}
-            onChange={(e) => setFilter({ walletId: e.target.value || undefined })}
-            className="bg-white border border-slate-200/80 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 shadow-2xs focus:outline-none focus:ring-2 focus:ring-amber-400"
-          >
-            <option value="">Tất cả các ví</option>
-            {wallets.map((w) => (
-              <option key={w.id} value={w.id}>
-                {w.name}
-              </option>
-            ))}
-          </select>
+          <div className="w-40">
+            <Dropdown
+              value={filter.walletId ?? 'ALL'}
+              onValueChange={(val) => setFilter({ walletId: val === 'ALL' ? undefined : val })}
+              options={[
+                { label: 'Tất cả các ví', value: 'ALL' },
+                ...wallets.map((w) => ({ label: w.name, value: w.id })),
+              ]}
+            />
+          </div>
 
           {/* Điều hướng tháng */}
           <div className="flex items-center bg-white border border-slate-200/80 rounded-xl shadow-2xs p-1">

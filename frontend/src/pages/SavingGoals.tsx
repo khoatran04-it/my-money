@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
+import { format } from 'date-fns';
 import {
   Plus,
   Trash2,
@@ -25,6 +26,8 @@ import {
 } from 'lucide-react';
 import { useSavingStore } from '@/store/useSavingStore';
 import { useWalletStore } from '@/store/useWalletStore';
+import { Dropdown } from '@/components/ui/Dropdown';
+import { DatePicker } from '@/components/ui/DatePicker';
 import type {
   SavingGoalCreateDto,
   SavingGoalReadDto,
@@ -119,7 +122,7 @@ function CreateGoalModal({ onClose }: CreateModalProps) {
         name: data.name,
         targetAmount: data.targetAmount,
         initialDeposit: data.initialDeposit,
-        targetDate: data.targetDate ? new Date(data.targetDate).toISOString() : undefined,
+        targetDate: data.targetDate ? new Date(data.targetDate + 'T12:00:00').toISOString() : undefined,
         color: data.color,
         icon: data.icon,
       };
@@ -156,21 +159,16 @@ function CreateGoalModal({ onClose }: CreateModalProps) {
           </div>
 
           {/* Chọn Ví liên kết */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
-              Ví trích tiền tích lũy
-            </label>
-            <select
-              {...register('walletId')}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:border-amber-400"
-            >
-              {wallets.map((w) => (
-                <option key={w.id} value={w.id}>
-                  {w.name} (Khả dụng: {formatCurrency(w.availableBalance ?? w.balance)})
-                </option>
-              ))}
-            </select>
-          </div>
+          <Dropdown
+            label="Ví trích tiền tích lũy"
+            value={selectedWalletId}
+            onValueChange={(val) => setValue('walletId', val)}
+            options={wallets.map((w) => ({
+              label: `${w.name} (Khả dụng: ${formatCurrency(w.availableBalance ?? w.balance)})`,
+              value: w.id,
+            }))}
+            error={errors.walletId?.message}
+          />
 
           {/* Số tiền mục tiêu */}
           <div>
@@ -211,16 +209,12 @@ function CreateGoalModal({ onClose }: CreateModalProps) {
           </div>
 
           {/* Ngày dự kiến hoàn thành */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
-              Hạn chót dự kiến
-            </label>
-            <input
-              type="date"
-              {...register('targetDate')}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:border-amber-400"
-            />
-          </div>
+          <DatePicker
+            label="Hạn chót dự kiến"
+            date={watch('targetDate') ? new Date(watch('targetDate')! + 'T12:00:00') : undefined}
+            onSelect={(d) => setValue('targetDate', d ? format(d, 'yyyy-MM-dd') : undefined)}
+            error={errors.targetDate?.message}
+          />
 
           {/* Biểu tượng */}
           <div>

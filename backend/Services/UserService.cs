@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using backend.Data;
 using backend.DTOs.User;
 using backend.Exceptions;
@@ -27,15 +27,21 @@ namespace backend.Services
         /// <exception cref="BadRequestException"></exception>
         public async Task<UserReadDto> RegisterAsync(UserCreateDto dto)
         {
-            //1. Kiểm tra xem tên đăng nhập, email hoặc số điện thoại đã tồn tại trong cơ sở dữ liệu hay chưa
-            var isDuplicate = await _context.Users
-                .AnyAsync(u => u.UserName == dto.UserName
-                            || u.Email == dto.Email
-                            || u.PhoneNumber == dto.PhoneNumber);
-
-            if (isDuplicate)
+            // 1. Kiểm tra từng trường cụ thể để tránh lỗi so sánh null với PhoneNumber và thông báo rõ ràng cho người dùng
+            if (await _context.Users.AnyAsync(u => u.UserName == dto.UserName))
             {
-                throw new BadRequestException("Tên đăng nhập, Email hoặc Số điện thoại đã được sử dụng.");
+                throw new BadRequestException("Tên đăng nhập này đã được sử dụng.");
+            }
+
+            if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
+            {
+                throw new BadRequestException("Email này đã được đăng ký tài khoản.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(dto.PhoneNumber) && 
+                await _context.Users.AnyAsync(u => u.PhoneNumber == dto.PhoneNumber))
+            {
+                throw new BadRequestException("Số điện thoại này đã được sử dụng.");
             }
 
             //2. Tạo một đối tượng User từ dto

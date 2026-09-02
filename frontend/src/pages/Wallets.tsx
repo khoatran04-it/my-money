@@ -15,6 +15,7 @@ import {
   CircleEllipsis,
 } from 'lucide-react';
 import { useWalletStore } from '@/store/useWalletStore';
+import { Dropdown } from '@/components/ui/Dropdown';
 import type { WalletCreateDto, WalletReadDto, WalletType, WalletUpdateDto } from '@/types/wallet.types';
 import { WALLET_TYPE_LABELS } from '@/types/wallet.types';
 
@@ -153,19 +154,13 @@ function WalletModal({ editTarget, onClose }: WalletModalProps) {
           </div>
 
           {/* Loại ví */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
-              Loại ví
-            </label>
-            <select
-              {...register('type')}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:border-amber-400 focus:ring-amber-400/20"
-            >
-              {WALLET_TYPES.map((t) => (
-                <option key={t} value={t}>{WALLET_TYPE_LABELS[t]}</option>
-              ))}
-            </select>
-          </div>
+          <Dropdown
+            label="Loại ví"
+            value={watch('type')}
+            onValueChange={(val) => setValue('type', val as WalletType)}
+            options={WALLET_TYPES.map((t) => ({ label: WALLET_TYPE_LABELS[t], value: t }))}
+            error={errors.type?.message}
+          />
 
           {/* Số dư ban đầu (chỉ hiện khi tạo mới) */}
           {!isEdit && (
