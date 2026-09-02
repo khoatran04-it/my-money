@@ -33,6 +33,11 @@ namespace backend.Data
         /// </summary>
         public DbSet<Transaction> Transactions { get; set; }
 
+        /// <summary>
+        /// DbSet đại diện cho bảng Budgets trong cơ sở dữ liệu, chứa các thực thể Budget.
+        /// </summary>
+        public DbSet<Budget> Budgets { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Áp dụng các cấu hình từ assembly hiện tại, giúp tự động áp dụng
