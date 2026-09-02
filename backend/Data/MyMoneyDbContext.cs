@@ -27,6 +27,12 @@ namespace backend.Data
         /// DbSet đại diện cho bảng Categories trong cơ sở dữ liệu, chứa các thực thể Category.
         /// </summary>
         public DbSet<Category> Categories { get; set; }
+
+        /// <summary>
+        /// DbSet đại diện cho bảng Transactions trong cơ sở dữ liệu, chứa các thực thể Transaction.
+        /// </summary>
+        public DbSet<Transaction> Transactions { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Áp dụng các cấu hình từ assembly hiện tại, giúp tự động áp dụng
