@@ -8,6 +8,7 @@ import Register from '@/pages/Register';
 import Dashboard from '@/pages/Dashboard';
 import Wallets from '@/pages/Wallets';
 import Categories from '@/pages/Categories';
+import Transactions from '@/pages/Transactions';
 
 export default function AppRouter() {
   return (
@@ -25,6 +26,7 @@ export default function AppRouter() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/wallets" element={<Wallets />} />
             <Route path="/categories" element={<Categories />} />
+            <Route path="/transactions" element={<Transactions />} />
           </Route>
         </Route>
 
