@@ -7,6 +7,7 @@ import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import Dashboard from '@/pages/Dashboard';
 import Wallets from '@/pages/Wallets';
+import Categories from '@/pages/Categories';
 
 export default function AppRouter() {
   return (
@@ -23,6 +24,7 @@ export default function AppRouter() {
           <Route element={<MainLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/wallets" element={<Wallets />} />
+            <Route path="/categories" element={<Categories />} />
           </Route>
         </Route>
 
