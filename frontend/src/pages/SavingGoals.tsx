@@ -28,6 +28,7 @@ import { useSavingStore } from '@/store/useSavingStore';
 import { useWalletStore } from '@/store/useWalletStore';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { DatePicker } from '@/components/ui/DatePicker';
+import { NumberInput } from '@/components/ui/NumberInput';
 import type {
   SavingGoalCreateDto,
   SavingGoalReadDto,
@@ -171,42 +172,33 @@ function CreateGoalModal({ onClose }: CreateModalProps) {
           />
 
           {/* Số tiền mục tiêu */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
-              Số tiền mục tiêu cần đạt (VNĐ)
-            </label>
-            <input
-              type="number"
-              step="100000"
-              {...register('targetAmount', { valueAsNumber: true })}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-base font-bold text-slate-800 focus:outline-none focus:ring-2 focus:border-amber-400"
-            />
-            {errors.targetAmount && (
-              <p className="mt-1 text-xs text-red-500">{errors.targetAmount.message}</p>
-            )}
-          </div>
+          <NumberInput
+            label="Số tiền mục tiêu cần đạt"
+            suffix="VNĐ"
+            value={watch('targetAmount')}
+            onValueChange={(val) => setValue('targetAmount', val ?? 0, { shouldValidate: true })}
+            error={errors.targetAmount?.message}
+            placeholder="VD: 20,000,000"
+          />
 
           {/* Nạp ban đầu */}
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-600">
-                Nạp ban đầu (tùy chọn)
-              </label>
-              <span className="text-xs text-emerald-600 font-medium">
-                Tối đa: {formatCurrency(availableBalance)}
-              </span>
-            </div>
-            <input
-              type="number"
-              step="50000"
-              {...register('initialDeposit', { valueAsNumber: true })}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:border-amber-400"
-              placeholder="0"
-            />
-            {errors.initialDeposit && (
-              <p className="mt-1 text-xs text-red-500">{errors.initialDeposit.message}</p>
-            )}
-          </div>
+          <NumberInput
+            label="Nạp ban đầu (tùy chọn)"
+            suffix="VNĐ"
+            allowZero
+            value={watch('initialDeposit')}
+            onValueChange={(val) => setValue('initialDeposit', val ?? 0, { shouldValidate: true })}
+            error={errors.initialDeposit?.message}
+            placeholder="0"
+            helperText={
+              <div className="flex items-center justify-between text-xs mt-0.5">
+                <span className="text-slate-500">Khả dụng trong ví:</span>
+                <span className="font-semibold text-emerald-600">
+                  {formatCurrency(availableBalance)}
+                </span>
+              </div>
+            }
+          />
 
           {/* Ngày dự kiến hoàn thành */}
           <DatePicker
@@ -302,8 +294,9 @@ function ActionModal({ goal, mode, onClose }: ActionModalProps) {
   const maxWithdrawable = goal.currentAmount;
 
   const {
-    register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<ActionAmountFormData>({
     resolver: zodResolver(actionAmountSchema),
@@ -346,29 +339,24 @@ function ActionModal({ goal, mode, onClose }: ActionModalProps) {
         </p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-600">
-                Số tiền (VNĐ)
-              </label>
-              <span className="text-xs text-emerald-600 font-medium">
-                {mode === 'deposit'
-                  ? `Khả dụng: ${formatCurrency(maxAvailable)}`
-                  : `Trong quỹ: ${formatCurrency(maxWithdrawable)}`}
-              </span>
-            </div>
-            <input
-              type="number"
-              step="50000"
-              {...register('amount', { valueAsNumber: true })}
-              className={`w-full rounded-xl border bg-slate-50 px-3 py-2.5 text-base font-bold text-slate-800 focus:outline-none focus:ring-2 ${
-                errors.amount ? 'border-red-400' : 'border-slate-200 focus:border-amber-400'
-              }`}
-            />
-            {errors.amount && (
-              <p className="mt-1 text-xs text-red-500">{errors.amount.message}</p>
-            )}
-          </div>
+          <NumberInput
+            label="Số tiền"
+            suffix="VNĐ"
+            value={watch('amount')}
+            onValueChange={(val) => setValue('amount', val ?? 0, { shouldValidate: true })}
+            error={errors.amount?.message}
+            placeholder="0"
+            helperText={
+              <div className="flex items-center justify-between text-xs mt-0.5">
+                <span className="text-slate-500">
+                  {mode === 'deposit' ? 'Tối đa khả dụng:' : 'Tối đa trong quỹ:'}
+                </span>
+                <span className="font-semibold text-emerald-600">
+                  {formatCurrency(mode === 'deposit' ? maxAvailable : maxWithdrawable)}
+                </span>
+              </div>
+            }
+          />
 
           <div className="flex gap-3 pt-2">
             <button

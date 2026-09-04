@@ -37,6 +37,7 @@ import { useWalletStore } from '@/store/useWalletStore';
 import { useCategoryStore } from '@/store/useCategoryStore';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { DatePicker } from '@/components/ui/DatePicker';
+import { NumberInput } from '@/components/ui/NumberInput';
 import type {
   TransactionCreateDto,
   TransactionReadDto,
@@ -138,6 +139,11 @@ function TransactionModal({ editTarget, onClose }: TransactionModalProps) {
   });
 
   const selectedType = watch('type');
+  const selectedWalletId = watch('walletId');
+  const selectedWallet = useMemo(
+    () => wallets.find((w) => w.id === selectedWalletId),
+    [wallets, selectedWalletId]
+  );
 
   // Lọc danh mục phù hợp theo Loại giao dịch được chọn (Thu hoặc Chi)
   const availableCategories = useMemo(
@@ -156,6 +162,20 @@ function TransactionModal({ editTarget, onClose }: TransactionModalProps) {
 
   const onSubmit = async (data: TransactionFormData) => {
     try {
+      if (data.type === 'Expense' && selectedWallet) {
+        const currentBalance = selectedWallet.availableBalance ?? selectedWallet.balance;
+        const available =
+          isEdit && editTarget?.walletId === data.walletId && editTarget.type === 'Expense'
+            ? currentBalance + editTarget.amount
+            : currentBalance;
+
+        if (data.amount > available) {
+          toast.error(
+            `Số dư khả dụng của ví '${selectedWallet.name}' (${formatCurrency(available)}) không đủ để thực hiện khoản chi ${formatCurrency(data.amount)}.`
+          );
+          return;
+        }
+      }
       if (isEdit) {
         const updateData: TransactionUpdateDto = {
           walletId: data.walletId,
@@ -220,25 +240,31 @@ function TransactionModal({ editTarget, onClose }: TransactionModalProps) {
           </div>
 
           {/* Số tiền */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
-              Số tiền (VNĐ)
-            </label>
-            <input
-              type="number"
-              step="1000"
-              {...register('amount', { valueAsNumber: true })}
-              className={`w-full rounded-xl border bg-slate-50 px-3 py-2.5 text-base font-bold text-slate-800 focus:outline-none focus:ring-2 ${
-                errors.amount
-                  ? 'border-red-400 focus:ring-red-400/20'
-                  : 'border-slate-200 focus:border-amber-400 focus:ring-amber-400/20'
-              }`}
-              placeholder="0"
-            />
-            {errors.amount && (
-              <p className="mt-1 text-xs text-red-500">{errors.amount.message}</p>
-            )}
-          </div>
+          <NumberInput
+            label="Số tiền"
+            suffix="VNĐ"
+            value={watch('amount')}
+            onValueChange={(val) => setValue('amount', val ?? 0, { shouldValidate: true })}
+            error={errors.amount?.message}
+            placeholder="0"
+            helperText={
+              selectedType === 'Expense' && selectedWallet ? (
+                <div className="flex items-center justify-between text-xs mt-0.5">
+                  <span className="text-slate-500">Khả dụng trong ví:</span>
+                  <span
+                    className={`font-semibold ${
+                      (selectedWallet.availableBalance ?? selectedWallet.balance) <
+                      (watch('amount') || 0)
+                        ? 'text-red-500'
+                        : 'text-emerald-600'
+                    }`}
+                  >
+                    {formatCurrency(selectedWallet.availableBalance ?? selectedWallet.balance)}
+                  </span>
+                </div>
+              ) : null
+            }
+          />
 
           {/* Chọn Ví */}
           <Dropdown
@@ -246,7 +272,7 @@ function TransactionModal({ editTarget, onClose }: TransactionModalProps) {
             value={watch('walletId')}
             onValueChange={(val) => setValue('walletId', val)}
             options={wallets.map((w) => ({
-              label: `${w.name} (${formatCurrency(w.balance)})`,
+              label: `${w.name} (Khả dụng: ${formatCurrency(w.availableBalance ?? w.balance)})`,
               value: w.id,
             }))}
             error={errors.walletId?.message}
