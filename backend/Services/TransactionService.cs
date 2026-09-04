@@ -140,6 +140,21 @@ namespace backend.Services
             // 4. Cập nhật số dư ví
             if (dto.Type == TransactionType.Expense)
             {
+                // Kiểm tra số dư khả dụng thực tế của ví (trừ các khoản đã giữ cho mục tiêu tích lũy)
+                var currentReserved = await _context.SavingGoals
+                    .AsNoTracking()
+                    .Where(s => s.UserId == userId && s.WalletId == wallet.Id && s.Status == "Active")
+                    .SumAsync(s => s.CurrentAmount);
+
+                var availableBalance = wallet.Balance - currentReserved;
+
+                if (dto.Amount > availableBalance)
+                {
+                    throw new BadRequestException(
+                        $"Số dư khả dụng của ví '{wallet.Name}' ({availableBalance:#,##0.##} VNĐ) không đủ để thực hiện khoản chi {dto.Amount:#,##0.##} VNĐ."
+                    );
+                }
+
                 wallet.Balance -= dto.Amount;
             }
             else
@@ -224,6 +239,21 @@ namespace backend.Services
             // 4. Áp dụng số dư mới cho ví mới
             if (dto.Type == TransactionType.Expense)
             {
+                // Kiểm tra số dư khả dụng thực tế của ví mới
+                var currentReserved = await _context.SavingGoals
+                    .AsNoTracking()
+                    .Where(s => s.UserId == userId && s.WalletId == targetWallet.Id && s.Status == "Active")
+                    .SumAsync(s => s.CurrentAmount);
+
+                var availableBalance = targetWallet.Balance - currentReserved;
+
+                if (dto.Amount > availableBalance)
+                {
+                    throw new BadRequestException(
+                        $"Số dư khả dụng của ví '{targetWallet.Name}' ({availableBalance:#,##0.##} VNĐ) không đủ để thực hiện khoản chi {dto.Amount:#,##0.##} VNĐ."
+                    );
+                }
+
                 targetWallet.Balance -= dto.Amount;
             }
             else

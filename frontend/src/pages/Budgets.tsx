@@ -30,6 +30,7 @@ import {
 import { useBudgetStore } from '@/store/useBudgetStore';
 import { useCategoryStore } from '@/store/useCategoryStore';
 import { Dropdown } from '@/components/ui/Dropdown';
+import { NumberInput } from '@/components/ui/NumberInput';
 import type {
   BudgetCreateDto,
   BudgetReadDto,
@@ -97,7 +98,6 @@ function CreateBudgetModal({ month, year, existingCategoryIds, onClose }: Create
   );
 
   const {
-    register,
     handleSubmit,
     setValue,
     watch,
@@ -160,25 +160,14 @@ function CreateBudgetModal({ month, year, existingCategoryIds, onClose }: Create
             />
 
             {/* Hạn mức số tiền */}
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
-                Hạn mức tối đa (VNĐ)
-              </label>
-              <input
-                type="number"
-                step="50000"
-                {...register('limitAmount', { valueAsNumber: true })}
-                className={`w-full rounded-xl border bg-slate-50 px-3 py-2.5 text-base font-bold text-slate-800 focus:outline-none focus:ring-2 ${
-                  errors.limitAmount
-                    ? 'border-red-400 focus:ring-red-400/20'
-                    : 'border-slate-200 focus:border-amber-400'
-                }`}
-                placeholder="VD: 3000000"
-              />
-              {errors.limitAmount && (
-                <p className="mt-1 text-xs text-red-500">{errors.limitAmount.message}</p>
-              )}
-            </div>
+            <NumberInput
+              label="Hạn mức tối đa"
+              suffix="VNĐ"
+              value={watch('limitAmount')}
+              onValueChange={(val) => setValue('limitAmount', val ?? 0, { shouldValidate: true })}
+              error={errors.limitAmount?.message}
+              placeholder="VD: 3,000,000"
+            />
 
             <div className="flex gap-3 pt-3 border-t border-slate-100">
               <button
@@ -215,8 +204,9 @@ function EditBudgetModal({ budget, onClose }: EditModalProps) {
   const { updateBudget, isLoading } = useBudgetStore();
 
   const {
-    register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<BudgetUpdateFormData>({
     resolver: zodResolver(budgetUpdateSchema),
@@ -247,24 +237,14 @@ function EditBudgetModal({ budget, onClose }: EditModalProps) {
         </p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
-              Hạn mức mới (VNĐ)
-            </label>
-            <input
-              type="number"
-              step="50000"
-              {...register('limitAmount', { valueAsNumber: true })}
-              className={`w-full rounded-xl border bg-slate-50 px-3 py-2.5 text-base font-bold text-slate-800 focus:outline-none focus:ring-2 ${
-                errors.limitAmount
-                  ? 'border-red-400 focus:ring-red-400/20'
-                  : 'border-slate-200 focus:border-amber-400'
-              }`}
-            />
-            {errors.limitAmount && (
-              <p className="mt-1 text-xs text-red-500">{errors.limitAmount.message}</p>
-            )}
-          </div>
+          <NumberInput
+            label="Hạn mức mới"
+            suffix="VNĐ"
+            value={watch('limitAmount')}
+            onValueChange={(val) => setValue('limitAmount', val ?? 0, { shouldValidate: true })}
+            error={errors.limitAmount?.message}
+            placeholder="VD: 3,000,000"
+          />
 
           <div className="flex gap-3 pt-3 border-t border-slate-100">
             <button

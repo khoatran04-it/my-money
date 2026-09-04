@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useWalletStore } from '@/store/useWalletStore';
 import { Dropdown } from '@/components/ui/Dropdown';
+import { NumberInput } from '@/components/ui/NumberInput';
 import type { WalletCreateDto, WalletReadDto, WalletType, WalletUpdateDto } from '@/types/wallet.types';
 import { WALLET_TYPE_LABELS } from '@/types/wallet.types';
 
@@ -164,22 +165,15 @@ function WalletModal({ editTarget, onClose }: WalletModalProps) {
 
           {/* Số dư ban đầu (chỉ hiện khi tạo mới) */}
           {!isEdit && (
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
-                Số dư ban đầu (VNĐ)
-              </label>
-              <input
-                type="number"
-                {...register('balance', { valueAsNumber: true })}
-                className={`w-full rounded-xl border bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 ${
-                  errors.balance
-                    ? 'border-red-400 focus:ring-red-400/20'
-                    : 'border-slate-200 focus:border-amber-400 focus:ring-amber-400/20'
-                }`}
-                placeholder="0"
-              />
-              {errors.balance && <p className="mt-1 text-xs text-red-500">{errors.balance.message}</p>}
-            </div>
+            <NumberInput
+              label="Số dư ban đầu"
+              suffix="VNĐ"
+              allowZero
+              value={watch('balance')}
+              onValueChange={(val) => setValue('balance', val ?? 0, { shouldValidate: true })}
+              error={errors.balance?.message}
+              placeholder="0"
+            />
           )}
 
           {/* Màu sắc */}
